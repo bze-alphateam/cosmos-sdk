@@ -189,17 +189,16 @@ func NewTxConfigWithOptions(protoCodec codec.Codec, configOptions ConfigOptions)
 	var err error
 	opts := &configOptions
 	if opts.SigningContext == nil {
-		signingOpts := configOptions.SigningOptions
-		if signingOpts == nil {
-			signingOpts, err = NewDefaultSigningOptions()
+		if opts.SigningOptions == nil {
+			opts.SigningOptions, err = NewDefaultSigningOptions()
 			if err != nil {
 				return nil, err
 			}
 		}
-		if signingOpts.FileResolver == nil {
-			signingOpts.FileResolver = protoCodec.InterfaceRegistry()
+		if opts.SigningOptions.FileResolver == nil {
+			opts.SigningOptions.FileResolver = protoCodec.InterfaceRegistry()
 		}
-		opts.SigningContext, err = txsigning.NewContext(*signingOpts)
+		opts.SigningContext, err = txsigning.NewContext(*opts.SigningOptions)
 		if err != nil {
 			return nil, err
 		}
@@ -211,7 +210,7 @@ func NewTxConfigWithOptions(protoCodec codec.Codec, configOptions ConfigOptions)
 		return txConfig, nil
 	}
 
-	txConfig.handler, err = NewSigningHandlerMap(configOptions)
+	txConfig.handler, err = NewSigningHandlerMap(*opts)
 	if err != nil {
 		return nil, err
 	}
